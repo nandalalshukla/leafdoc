@@ -106,7 +106,7 @@ matters, and the app shows both in **Settings → Model**.
 python -m leafdoc_train.export_onnx --checkpoint runs/mnv3/best.pt --install
 ```
 
-- Exports with a dynamic batch dimension (opset 17) and checks the graph.
+- Exports with a dynamic batch dimension (opset 18) and checks the graph.
 - Verifies ONNX Runtime output against PyTorch (max abs diff below `1e-3`).
 - Writes `model-meta.json` with the labels in logit order, normalisation, temperature, threshold and metrics.
 - `--install` copies both files to `mobile/assets/model/` and switches `mobile/src/ml/bundledModels.ts` to

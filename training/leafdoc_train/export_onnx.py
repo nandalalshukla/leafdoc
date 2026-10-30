@@ -54,20 +54,32 @@ def build_meta(ckpt: dict, calibration: dict | None, eval_report: dict | None, v
     }
 
 
-def export(model, img_size: int, path: Path, opset: int = 17) -> None:
+def export(model, img_size: int, path: Path, opset: int = 18) -> None:
     import torch
 
     dummy = torch.randn(1, 3, img_size, img_size)
-    kwargs = dict(
-        input_names=["input"],
-        output_names=["logits"],
-        opset_version=opset,
-        dynamic_axes={"input": {0: "batch"}, "logits": {0: "batch"}},
-    )
+    names = dict(input_names=["input"], output_names=["logits"], opset_version=opset)
     try:
-        torch.onnx.export(model, dummy, str(path), dynamo=False, **kwargs)
-    except TypeError:  # older torch without the `dynamo` flag
-        torch.onnx.export(model, dummy, str(path), **kwargs)
+        # torch.export-based exporter (default since PyTorch 2.9).
+        torch.onnx.export(
+            model,
+            (dummy,),
+            str(path),
+            dynamo=True,
+            external_data=False,
+            dynamic_shapes=({0: torch.export.Dim("batch", min=1, max=64)},),
+            **names,
+        )
+    except Exception as e:  # older torch, or an op the new exporter can't handle yet
+        print(f"dynamo ONNX export failed ({type(e).__name__}: {e}); falling back to the TorchScript exporter")
+        torch.onnx.export(
+            model,
+            dummy,
+            str(path),
+            dynamo=False,
+            dynamic_axes={"input": {0: "batch"}, "logits": {0: "batch"}},
+            **names,
+        )
 
 
 def verify(model, onnx_path: Path, img_size: int, atol: float = 1e-3) -> float:
@@ -92,7 +104,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--checkpoint", required=True)
     ap.add_argument("--out", help="Output folder (default: <run>/export)")
     ap.add_argument("--version", help="Model version string (default: <arch>-<date>)")
-    ap.add_argument("--opset", type=int, default=17)
+    ap.add_argument("--opset", type=int, default=18)
     ap.add_argument("--install", action="store_true", help="Copy into the mobile app and enable bundling")
     ap.add_argument("--allow-uncalibrated", action="store_true")
     args = ap.parse_args(argv)
