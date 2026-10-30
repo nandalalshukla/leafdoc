@@ -1,3 +1,14 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Python / training
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+training/data/
+training/runs/
+*.pt
+*.npz

@@ -1,0 +1,15 @@
+[project]
+name = "leafdoc-train"
+version = "1.0.0"
+description = "Training, calibration and ONNX export for the LeafDoc leaf-disease classifier"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
