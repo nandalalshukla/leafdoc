@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "modelVersion": "unavailable",
+  "architecture": "yolov8n",
+  "inputName": "images",
+  "outputName": "output0",
+  "inputSize": 320,
+  "scoreThreshold": 0.35,
+  "boxPadding": 0.08,
+  "minBoxFraction": 0.15
+}
